@@ -12,6 +12,7 @@ angular.module('grafterizerApp')
               $scope,
                $stateParams,
                ontotextAPI,
+               dataGraftApi,
                uploadFile,
                $rootScope,
                $state,
@@ -401,14 +402,16 @@ angular.module('grafterizerApp')
   $scope.loading = true;
   $rootScope.readonlymode = true;
 
-  // setTimeout(function() {
-  ontotextAPI.transformation(id).success(function(data) {
-    $scope.loading = false;
-    $rootScope.readonlymode = $state.is('transformations.readonly');
-    $scope.document = data;
-    $scope.document.title = data['dct:title'];
-    $scope.document.description = data['dct:description'];
-    $scope.document.keywords = data['dcat:keyword'];
+ // setTimeout(function() {
+    ontotextAPI.transformation(id).success(function(data) {
+    //dataGraftApi.getTransformation("comeonnn").success(function(data) {
+    //dataGraftApi.getTransformation(id).success(function(data) {
+      $scope.loading = false;
+      $rootScope.readonlymode = $state.is('transformations.readonly');
+      $scope.document = data;
+      $scope.document.title = data['dct:title'];
+      $scope.document.description = data['dct:description'];
+      $scope.document.keywords = data['dcat:keyword'];
 
     if (!$scope.document.keywords ||
         typeof $scope.document.keywords.length === 'undefined') {
@@ -647,25 +650,40 @@ angular.module('grafterizerApp')
       function() {
         angular.copy($scope.originalPrefixers, $scope.transformation.prefixers);
       });
-  };
+    };
+    
+    // This function should open the dialog box and set controller for it.
+    // Let's try to use the same controller as we're already in :)
+    $scope.defineUtilityFunctions = function() {
+      //$scope.originalCustomFunctionDeclarations = [];
+      //angular.copy($scope.transformation.customFunctionDeclarations, $scope
+      //    .originalCustomFunctionDeclarations);
+      $mdDialog.show({
+        templateUrl: 'views/utilityfunctiondialog.html',
+        controller: 'UtilityFunctionsCtrl',
+        scope: $scope.$new(false, $scope),
+        clickOutsideToClose: true
+      }).then(
+        function() {});//,
+    };
 
-  $scope.defineCustomFunctions = function() {
-    $scope.originalCustomFunctionDeclarations = [];
-    angular.copy($scope.transformation.customFunctionDeclarations, $scope
-                 .originalCustomFunctionDeclarations);
-    $mdDialog.show({
-      templateUrl: 'views/createcustomfunction.html',
-      controller: 'CustomfunctionsdialogcontrollerCtrl',
-      scope: $scope.$new(false, $scope),
-      clickOutsideToClose: true
-    }).then(
-      function() {},
+    $scope.defineCustomFunctions = function() {
+      $scope.originalCustomFunctionDeclarations = [];
+      angular.copy($scope.transformation.customFunctionDeclarations, $scope
+        .originalCustomFunctionDeclarations);
+      $mdDialog.show({
+        templateUrl: 'views/createcustomfunction.html',
+        controller: 'CustomfunctionsdialogcontrollerCtrl',
+        scope: $scope.$new(false, $scope),
+        clickOutsideToClose: true
+      }).then(
+        function() {},
 
-      function() {
-        angular.copy($scope.originalCustomFunctionDeclarations, $scope.transformation
-                     .customFunctionDeclarations);
-      });
-  };
+        function() {
+          angular.copy($scope.originalCustomFunctionDeclarations, $scope.transformation
+            .customFunctionDeclarations);
+        });
+    };
 
   $scope.loadDistribution = function() {
     $mdDialog.show({
